@@ -319,6 +319,53 @@ function showCelebration() {
         setTimeout(() => celebration.remove(), 1000);
     }, 2000);
 }
+// RSVP Form Handling
+document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const rsvpData = {
+        name: document.getElementById('rsvpName').value,
+        attending: document.querySelector('input[name="attending"]:checked').value,
+        message: document.getElementById('rsvpMessage').value,
+        date: new Date().toISOString()
+    };
+
+    try {
+        // Push to Firebase
+        const newRsvpRef = database.ref('rsvps').push();
+        await newRsvpRef.set(rsvpData);
+        
+        showSyncStatus('RSVP submitted successfully!');
+        this.reset();
+    } catch (error) {
+        showSyncStatus('Failed to submit RSVP', 'error');
+        console.error(error);
+    }
+});
+
+// Update gift rendering to show "View details"
+function renderGifts() {
+    elements.giftGrid.innerHTML = '';
+    
+    gifts.forEach(gift => {
+        // ... existing code ...
+        card.innerHTML = `
+            <!-- ... other elements ... -->
+            <div class="gift-content">
+                <h3>${gift.name}</h3>
+                <p>${gift.description}</p>
+                ${gift.link !== '#' ? `
+                <a href="${gift.link}" class="gift-link" target="_blank">
+                    View details <i class="fas fa-arrow-right"></i>
+                </a>` : ''}
+                <button onclick="handleGiftSelection(${gift.id})" class="btn">
+                    ${isSelected ? 'Selected' : 'Select Gift'}
+                </button>
+            </div>
+        `;
+        // ... rest of function ...
+    });
+}
 
 // ======================
 // Event Handlers
