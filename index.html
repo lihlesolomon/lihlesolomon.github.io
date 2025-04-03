@@ -19,6 +19,10 @@
             <div id="giftGrid" class="gift-grid"></div>
         </section>
 
+        <button id="rsvpButton" class="btn rsvp-button">
+            <i class="fas fa-envelope"></i> RSVP Now
+        </button>
+
         <button id="adminToggle" class="admin-toggle">
             <i class="fas fa-lock"></i> Admin
         </button>
@@ -29,10 +33,13 @@
                 <button id="exportGiftsBtn" class="btn">
                     <i class="fas fa-download"></i> Export Gift Selections
                 </button>
+                <button id="exportRsvpsBtn" class="btn">
+                    <i class="fas fa-download"></i> Export RSVPs
+                </button>
             </div>
             
             <div class="admin-tables">
-                <h3>Selected Gifts</h3>
+                <h3><i class="fas fa-gift"></i> Selected Gifts</h3>
                 <table>
                     <thead>
                         <tr>
@@ -44,42 +51,68 @@
                     </thead>
                     <tbody id="selectionsBody"></tbody>
                 </table>
+
+                <h3><i class="fas fa-users"></i> RSVPs</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Attending</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rsvpsBody"></tbody>
+                </table>
             </div>
         </section>
-        <section class="rsvp-section">
-    <h2><i class="fas fa-envelope"></i> RSVP</h2>
-    <form id="rsvpForm">
-        <div class="form-group">
-            <label for="rsvpName">Your Name</label>
-            <input type="text" id="rsvpName" required>
-        </div>
-        <div class="form-group">
-            <label>Will you attend?</label>
-            <div class="radio-group">
-                <input type="radio" id="rsvpYes" name="attending" value="yes" checked>
-                <label for="rsvpYes">Yes</label>
-                <input type="radio" id="rsvpNo" name="attending" value="no">
-                <label for="rsvpNo">No</label>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="rsvpMessage">Message (Optional)</label>
-            <textarea id="rsvpMessage"></textarea>
-        </div>
-        <button type="submit" class="btn">Submit RSVP</button>
-    </form>
-</section>
     </main>
 
     <!-- Modals -->
     <div id="passwordModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h3>Admin Login</h3>
+            <h3><i class="fas fa-lock"></i> Admin Login</h3>
             <form id="passwordForm">
-                <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+                </div>
                 <button type="submit" class="btn">
                     <i class="fas fa-unlock"></i> Unlock
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="rsvpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3><i class="fas fa-envelope"></i> RSVP</h3>
+            <form id="rsvpForm">
+                <div class="form-group">
+                    <label for="rsvpName">Your Name</label>
+                    <input type="text" id="rsvpName" required>
+                </div>
+                <div class="form-group">
+                    <label>Will you attend?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="rsvpYes" name="attending" value="yes" checked>
+                            <label for="rsvpYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="rsvpNo" name="attending" value="no">
+                            <label for="rsvpNo">No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rsvpMessage">Message (Optional)</label>
+                    <textarea id="rsvpMessage" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-paper-plane"></i> Submit RSVP
                 </button>
             </form>
         </div>
