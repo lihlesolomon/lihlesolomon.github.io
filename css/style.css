@@ -15,7 +15,39 @@
     margin: 0;
     padding: 0;
 }
+/* Add to your existing CSS */
+body {
+    background: #f8f4e9; /* Cream background */
+    border: 20px solid #f5e7d3; /* Cream border */
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
+.gift-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #9c27b0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.gift-link:hover {
+    color: #7b1fa2;
+    text-decoration: underline;
+}
+
+/* RSVP Section Styles */
+.rsvp-section {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin: 40px auto;
+    max-width: 600px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
