@@ -7,9 +7,7 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/tempo-gold-plated-black-dial-bracelet-watch-05s710abjy8/p", 
         image: "images/watch.jpeg",
-        options: [
-            { label: "Size", value: "Standard" }
-        ]
+        options: []
     },
     { 
         id: 2, 
@@ -18,10 +16,7 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/stanley-quencher-h2-o-flowstate-black-1-18l-tumbler-130609adjq5/p", 
         image: "images/stanley-cup.jpeg",
-        options: [
-            { label: "1st item", value: "99.0 cm" },
-            { label: "2nd item", value: "4.8 cm" }
-        ]
+        options: []
     },
     { 
         id: 3, 
