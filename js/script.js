@@ -46,6 +46,13 @@ const gifts = [
         options: []
     },
     { 
+        id: 6, 
+        name: "Edgars 212 VIP Black", 
+        description: "212 VIP BLACK STIMULATING & Powerful", 
+        link: "https://www.edgars.co.za/products/212-vip-men-black-eau-de-parfum-c28200330?srsltid=AfmBOooajR1U2dQWkGxHGd__1w6wbH9flmf2YhJP5LPWPD5wz4b8lyFS", 
+        image: "images/perfume.jpeg" 
+    },
+    { 
         id: 7, 
         name: "Factory NBA Set", 
         description: "NBA Track Pant & NBA Hoodie - size Large (Sold Separate)", 
