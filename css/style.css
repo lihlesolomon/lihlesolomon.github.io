@@ -79,8 +79,8 @@ body {
 .hero-title {
     font-size: 2rem;
     font-family: 'Dancing Script', cursive;
-    color: #28a745; /* Green color */
-    margin-bottom: 10px;
+    color: #4A6B5B; /* Green color */
+    margin-bottom: 18px;
 }
 
 /* Celebration Text */
@@ -92,7 +92,7 @@ body {
 
 /* RSVP Button */
 .rsvp-button {
-    background-color: #6ae681; /* Blue color */
+    background-color: #4A6B5B; /* Blue color */
     color: #fff;
     border: none;
     padding: 15px 30px;
@@ -109,7 +109,7 @@ body {
 }
 
 .rsvp-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+    background-color: #5dae83; /* Darker blue on hover */
 }
 
 /* Floral Decorations */
