@@ -160,7 +160,6 @@ function loadGifts() {
 
         gifts.forEach(gift => {
             const isSelected = selections[gift.id];
-            const selectedBy = isSelected ? selections[gift.id].selectedBy : null;
             const selectedOption = isSelected ? selections[gift.id].option : '';
 
             const giftCard = document.createElement('div');
@@ -187,9 +186,7 @@ function loadGifts() {
                 <div class="gift-image-container">
                     <img src="${gift.image}" alt="${gift.name}" 
                          onerror="this.src='images/default-gift.jpg'"
-                         loading="lazy"
-                         class="${isSelected ? '' : 'loading'}">
-                    ${!isSelected ? '<div class="loading-text">Loading image...</div>' : ''}
+                         loading="lazy">
                 </div>
                 <div class="gift-content">
                     <h3>${gift.name}</h3>
@@ -201,7 +198,7 @@ function loadGifts() {
                     <div class="gift-options">
                         ${optionsHTML}
                         <button class="select-button" data-id="${gift.id}" ${isSelected ? 'disabled' : ''}>
-                            ${isSelected ? `<i class="fas fa-check"></i> Selected by ${selectedBy}` : '<i class="far fa-heart"></i> Select This Gift'}
+                            ${isSelected ? `<i class="fas fa-check"></i> Selected` : '<i class="far fa-heart"></i> Select This Gift'}
                         </button>
                     </div>
                 </div>
