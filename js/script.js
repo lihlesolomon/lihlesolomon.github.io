@@ -141,8 +141,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show initial status
     showSyncStatus('Loading gift registry...');
+    //Image Zoom
+    setupImageZoom();
 });
+// Image Zoom Functionality
+function setupImageZoom() {
+    const zoomModal = document.getElementById('imageZoomModal');
+    const zoomedImg = document.getElementById('zoomedImage');
+    const closeZoom = document.querySelector('.close-zoom');
+    
+    if (!zoomModal || !zoomedImg || !closeZoom) return;
 
+    // Click on gift images to zoom
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('gift-card') || 
+            e.target.closest('.gift-card')) {
+            const img = e.target.tagName === 'IMG' ? e.target : 
+                       e.target.querySelector('img');
+            
+            if (img && img.src) {
+                zoomedImg.src = img.src;
+                zoomModal.style.display = 'flex';
+            }
+        }
+    });
+
+    // Close zoom modal
+    closeZoom.addEventListener('click', function() {
+        zoomModal.style.display = 'none';
+    });
+
+    // Close when clicking outside image
+    zoomModal.addEventListener('click', function(e) {
+        if (e.target === zoomModal) {
+            zoomModal.style.display = 'none';
+        }
+    });
+}
 // Slideshow functionality
 function initSlideshow() {
     const slides = document.querySelectorAll('.slideshow img');
@@ -168,10 +203,41 @@ function initSlideshow() {
 // Load gifts into the page
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
+    gifts.forEach(gift => {
     if (!giftGrid) {
         console.error('Gift grid element not found');
         showSyncStatus('Error loading gifts', 'error');
         return;
+         // Add loading state to images
+        giftCard.innerHTML = `
+            <div class="image-container">
+                <img src="${gift.image}" alt="${gift.name}" 
+                     onerror="this.src='images/default-gift.jpg'"
+                     loading="lazy"
+                     class="loading">
+                <div class="loading-text">Loading image...</div>
+            </div>
+            <!-- rest of your gift card HTML -->
+        `;
+        
+        // Preload images
+        const img = new Image();
+        img.src = gift.image;
+        img.onload = function() {
+            const cardImg = giftCard.querySelector('img');
+            if (cardImg) {
+                cardImg.classList.remove('loading');
+                giftCard.querySelector('.loading-text')?.remove();
+            }
+        };
+        img.onerror = function() {
+            const cardImg = giftCard.querySelector('img');
+            if (cardImg) {
+                cardImg.src = 'images/default-gift.jpg';
+                cardImg.classList.remove('loading');
+                giftCard.querySelector('.loading-text')?.remove();
+            }
+        };
     }
     
     giftGrid.innerHTML = '<div class="loading">Loading gifts...</div>';
