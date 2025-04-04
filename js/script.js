@@ -1,124 +1,136 @@
-let isAdmin = false;
+// Gift Data
+const gifts = [
+    { 
+        id: 1, 
+        name: "Gold Tempo Watch", 
+        description: "Tempo Gold Plated Navy Dial Bracelet Watch (currently on sale online BASH)", 
+        source: "Found on BASH",
+        link: "https://bash.com/tempo-gold-plated-black-dial-bracelet-watch-05s710abjy8/p", 
+        image: "images/watch.jpeg",
+        options: [
+            { label: "Size", value: "Standard" }
+        ]
+    },
+    { 
+        id: 2, 
+        name: "Stanley Cup Black", 
+        description: "High-quality black Stanley cup 1.18L Tumbler", 
+        source: "Found on BASH",
+        link: "https://bash.com/stanley-quencher-h2-o-flowstate-black-1-18l-tumbler-130609adjq5/p", 
+        image: "images/stanley-cup.jpeg",
+        options: [
+            { label: "1st item", value: "99.0 cm" },
+            { label: "2nd item", value: "4.8 cm" }
+        ]
+    },
+    // Add all 14 gifts here following the same structure
+    // ...
+];
 
-// Admin toggle
-document.getElementById('adminToggle').addEventListener('click', function() {
-    if (isAdmin) {
-        // Hide admin section
-        document.getElementById('adminSection').style.display = 'none';
-        isAdmin = false;
-    } else {
-        // Show password modal
-        document.getElementById('passwordModal').style.display = 'block';
-    }
-});
-
-// Password form
-document.getElementById('passwordForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const password = document.getElementById('adminPassword').value;
+// Load gifts into the page
+function loadGifts() {
+    const giftGrid = document.getElementById('giftGrid');
+    giftGrid.innerHTML = '';
     
-    // In production, use Firebase Auth
-    if (password === "nicky123") {
-        isAdmin = true;
-        document.getElementById('passwordModal').style.display = 'none';
-        document.getElementById('adminSection').style.display = 'block';
-        document.getElementById('adminPassword').value = '';
-        updateAdminTables();
-    } else {
-        alert('Incorrect password');
-    }
-});
-
-// Update admin tables
-function updateAdminTables() {
-    if (!isAdmin) return;
-    
-    const selectionsBody = document.getElementById('selectionsBody');
-    selectionsBody.innerHTML = '';
-    
-    database.ref('selections').once('value').then((snapshot) => {
+    // Get selections from Firebase
+    database.ref('selections').on('value', (snapshot) => {
         const selections = snapshot.val() || {};
         
-        Object.keys(selections).forEach(giftId => {
-            const selection = selections[giftId];
-            const gift = gifts.find(g => g.id == giftId);
+        gifts.forEach(gift => {
+            const isSelected = selections[gift.id];
+            const selectedBy = isSelected ? selections[gift.id].selectedBy : null;
             
-            if (gift) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${gift.name}</td>
-                    <td>${selection.selectedBy}</td>
-                    <td>${new Date(selection.date).toLocaleString()}</td>
-                    <td>
-                        <button class="unselect-button" data-id="${giftId}">
-                            Unselect
-                        </button>
-                    </td>
-                `;
-                selectionsBody.appendChild(row);
-            }
+            const giftCard = document.createElement('div');
+            giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
+            giftCard.innerHTML = `
+                <img src="${gift.image}" alt="${gift.name}">
+                <h3>${gift.name}</h3>
+                <p>${gift.description}</p>
+                <p class="source">${gift.source}</p>
+                <a href="${gift.link}" class="view-details" target="_blank">View details →</a>
+                <div class="gift-options">
+                    ${gift.options.map(option => `
+                        <div>
+                            <input type="radio" id="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}" 
+                                   name="gift-${gift.id}" value="${option.value}">
+                            <label for="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}">
+                                ${option.label}: ${option.value}
+                            </label>
+                        </div>
+                    `).join('')}
+                    <button class="select-button" data-id="${gift.id}" ${isSelected ? 'disabled' : ''}>
+                        ${isSelected ? `Selected by ${selectedBy}` : 'Select This Gift'}
+                    </button>
+                </div>
+            `;
+            giftGrid.appendChild(giftCard);
         });
         
-        // Add event listeners to unselect buttons
-        document.querySelectorAll('.unselect-button').forEach(button => {
+        // Add event listeners to select buttons
+        document.querySelectorAll('.select-button').forEach(button => {
             button.addEventListener('click', function() {
                 const giftId = this.getAttribute('data-id');
-                if (confirm('Are you sure you want to unselect this gift?')) {
-                    database.ref(`selections/${giftId}`).remove()
-                        .then(() => {
-                            showSyncStatus('Gift unselected');
-                            updateAdminTables();
-                        });
+                const selectedOption = document.querySelector(`input[name="gift-${giftId}"]:checked`);
+                
+                if (!selectedOption) {
+                    alert('Please select an option first');
+                    return;
+                }
+                
+                const selectedBy = prompt('Please enter your name:');
+                if (selectedBy) {
+                    database.ref(`selections/${giftId}`).set({
+                        selectedBy: selectedBy,
+                        date: new Date().toISOString(),
+                        option: selectedOption.value
+                    }).then(() => {
+                        showSyncStatus('Gift selected successfully!');
+                    });
                 }
             });
         });
     });
 }
 
-// Export RSVPs
-document.getElementById('exportRSVPBtn').addEventListener('click', function() {
-    database.ref('rsvps').once('value').then((snapshot) => {
-        const rsvps = snapshot.val() || {};
-        let csv = 'Name,Email,Attendance,Date\n';
-        
-        Object.values(rsvps).forEach(rsvp => {
-            csv += `"${rsvp.name}","${rsvp.email}","${rsvp.attendance}","${rsvp.date}"\n`;
-        });
-        
-        downloadCSV(csv, 'rsvps.csv');
-        showSyncStatus('RSVPs exported successfully!');
-    });
+// RSVP functionality
+document.getElementById('rsvpButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('rsvpModal').style.display = 'block';
 });
 
-// Export gift selections
-document.getElementById('exportGiftsBtn').addEventListener('click', function() {
-    database.ref('selections').once('value').then((snapshot) => {
-        const selections = snapshot.val() || {};
-        let csv = 'Gift,Selected By,Option,Date\n';
-        
-        Object.keys(selections).forEach(giftId => {
-            const selection = selections[giftId];
-            const gift = gifts.find(g => g.id == giftId);
-            
-            if (gift) {
-                csv += `"${gift.name}","${selection.selectedBy}","${selection.option || ''}","${selection.date}"\n`;
-            }
-        });
-        
-        downloadCSV(csv, 'gift-selections.csv');
-        showSyncStatus('Gift selections exported successfully!');
-    });
+document.getElementById('closeModal').addEventListener('click', function() {
+    document.getElementById('rsvpModal').style.display = 'none';
 });
 
-// Helper function to download CSV
-function downloadCSV(csv, filename) {
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const rsvpData = {
+        name: document.getElementById('rsvpName').value,
+        email: document.getElementById('rsvpEmail').value,
+        attendance: document.getElementById('rsvpAttendance').value,
+        date: new Date().toISOString()
+    };
+    
+    database.ref('rsvps').push(rsvpData)
+        .then(() => {
+            showSyncStatus('RSVP submitted successfully!');
+            document.getElementById('rsvpForm').reset();
+            document.getElementById('rsvpModal').style.display = 'none';
+        });
+});
+
+// Show sync status
+function showSyncStatus(message) {
+    const status = document.createElement('div');
+    status.className = 'sync-status';
+    status.textContent = message;
+    document.body.appendChild(status);
+    
+    setTimeout(() => {
+        status.remove();
+    }, 3000);
 }
+
+// Initialize the page
+window.addEventListener('DOMContentLoaded', loadGifts);
