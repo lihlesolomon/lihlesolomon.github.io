@@ -1,3 +1,19 @@
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBriONGl6ZtXSdtJ-fFFqxtpGVp_OPcqJg",
+    authDomain: "nickysbirthday-1e188.firebaseapp.com",
+    databaseURL: "https://nickysbirthday-1e188-default-rtdb.firebaseio.com",
+    projectId: "nickysbirthday-1e188",
+    storageBucket: "nickysbirthday-1e188.appspot.com",
+    messagingSenderId: "731449038490",
+    appId: "1:731449038490:web:67139e3b425b60253fb123"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+- 4. js/script.js
+```javascript
 // Gift Data
 const gifts = [
     { 
@@ -7,7 +23,9 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/tempo-gold-plated-black-dial-bracelet-watch-05s710abjy8/p", 
         image: "images/watch.jpeg",
-        options: []
+        options: [
+            { label: "Size", value: "Standard" }
+        ]
     },
     { 
         id: 2, 
@@ -16,7 +34,10 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/stanley-quencher-h2-o-flowstate-black-1-18l-tumbler-130609adjq5/p", 
         image: "images/stanley-cup.jpeg",
-        options: []
+        options: [
+            { label: "1st item", value: "99.0 cm" },
+            { label: "2nd item", value: "4.8 cm" }
+        ]
     },
     { 
         id: 3, 
@@ -130,54 +151,23 @@ const gifts = [
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize slideshow
+    // Check Firebase connection
+    if (!database) {
+        console.error('Firebase not initialized');
+        showSyncStatus('Error connecting to database', 'error');
+        return;
+    }
+
+    // Initialize all components
     initSlideshow();
-    
-    // Load gifts
     loadGifts();
-    
-    // Setup RSVP functionality
     setupRSVP();
-    
-    // Show initial status
-    showSyncStatus('Loading gift registry...');
-    //Image Zoom
     setupImageZoom();
-});
-// Image Zoom Functionality
-function setupImageZoom() {
-    const zoomModal = document.getElementById('imageZoomModal');
-    const zoomedImg = document.getElementById('zoomedImage');
-    const closeZoom = document.querySelector('.close-zoom');
     
-    if (!zoomModal || !zoomedImg || !closeZoom) return;
+    // Show loading status
+    showSyncStatus('Loading registry...');
+});
 
-    // Click on gift images to zoom
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('gift-card') || 
-            e.target.closest('.gift-card')) {
-            const img = e.target.tagName === 'IMG' ? e.target : 
-                       e.target.querySelector('img');
-            
-            if (img && img.src) {
-                zoomedImg.src = img.src;
-                zoomModal.style.display = 'flex';
-            }
-        }
-    });
-
-    // Close zoom modal
-    closeZoom.addEventListener('click', function() {
-        zoomModal.style.display = 'none';
-    });
-
-    // Close when clicking outside image
-    zoomModal.addEventListener('click', function(e) {
-        if (e.target === zoomModal) {
-            zoomModal.style.display = 'none';
-        }
-    });
-}
 // Slideshow functionality
 function initSlideshow() {
     const slides = document.querySelectorAll('.slideshow img');
@@ -203,44 +193,14 @@ function initSlideshow() {
 // Load gifts into the page
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
-    gifts.forEach(gift => {
     if (!giftGrid) {
         console.error('Gift grid element not found');
         showSyncStatus('Error loading gifts', 'error');
         return;
-         // Add loading state to images
-        giftCard.innerHTML = `
-            <div class="image-container">
-                <img src="${gift.image}" alt="${gift.name}" 
-                     onerror="this.src='images/default-gift.jpg'"
-                     loading="lazy"
-                     class="loading">
-                <div class="loading-text">Loading image...</div>
-            </div>
-            <!-- rest of your gift card HTML -->
-        `;
-        
-        // Preload images
-        const img = new Image();
-        img.src = gift.image;
-        img.onload = function() {
-            const cardImg = giftCard.querySelector('img');
-            if (cardImg) {
-                cardImg.classList.remove('loading');
-                giftCard.querySelector('.loading-text')?.remove();
-            }
-        };
-        img.onerror = function() {
-            const cardImg = giftCard.querySelector('img');
-            if (cardImg) {
-                cardImg.src = 'images/default-gift.jpg';
-                cardImg.classList.remove('loading');
-                giftCard.querySelector('.loading-text')?.remove();
-            }
-        };
     }
     
-    giftGrid.innerHTML = '<div class="loading">Loading gifts...</div>';
+    // Show loading state
+    giftGrid.innerHTML = '<div class="loading-gifts">Loading gifts...</div>';
     
     database.ref('selections').on('value', (snapshot) => {
         const selections = snapshot.val() || {};
@@ -258,16 +218,22 @@ function loadGifts() {
         gifts.forEach(gift => {
             const isSelected = selections[gift.id];
             const selectedBy = isSelected ? selections[gift.id].selectedBy : null;
+            const selectedOption = isSelected ? selections[gift.id].option : '';
             
             const giftCard = document.createElement('div');
             giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
+            giftCard.dataset.id = gift.id;
             
             // Create options HTML if options exist
             const optionsHTML = gift.options && gift.options.length > 0 
                 ? gift.options.map(option => `
                     <div class="option">
-                        <input type="radio" id="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}" 
-                               name="gift-${gift.id}" value="${option.value}">
+                        <input type="radio" 
+                               id="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}" 
+                               name="gift-${gift.id}" 
+                               value="${option.value}"
+                               ${selectedOption === option.value ? 'checked' : ''}
+                               ${isSelected ? 'disabled' : ''}>
                         <label for="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}">
                             ${option.label}: ${option.value}
                         </label>
@@ -276,53 +242,96 @@ function loadGifts() {
                 : '';
             
             giftCard.innerHTML = `
-                <img src="${gift.image}" alt="${gift.name}" onerror="this.src='images/default-gift.jpg'">
-                <h3>${gift.name}</h3>
-                <p>${gift.description}</p>
-                ${gift.source ? `<p class="source">${gift.source}</p>` : ''}
-                ${gift.link && gift.link !== '#' 
-                    ? `<a href="${gift.link}" class="view-details" target="_blank">View details →</a>` 
-                    : ''}
-                <div class="gift-options">
-                    ${optionsHTML}
-                    <button class="select-button" data-id="${gift.id}" ${isSelected ? 'disabled' : ''}>
-                        ${isSelected ? `Selected by ${selectedBy}` : 'Select This Gift'}
-                    </button>
+                <div class="gift-image-container">
+                    <img src="${gift.image}" alt="${gift.name}" 
+                         onerror="this.src='images/default-gift.jpg'"
+                         loading="lazy"
+                         class="${isSelected ? '' : 'loading'}">
+                    ${!isSelected ? '<div class="loading-text">Loading image...</div>' : ''}
+                </div>
+                <div class="gift-content">
+                    <h3>${gift.name}</h3>
+                    <p>${gift.description}</p>
+                    ${gift.source ? `<p class="source">${gift.source}</p>` : ''}
+                    ${gift.link && gift.link !== '#' 
+                        ? `<a href="${gift.link}" class="view-details" target="_blank">View details →</a>` 
+                        : ''}
+                    <div class="gift-options">
+                        ${optionsHTML}
+                        <button class="select-button" data-id="${gift.id}" ${isSelected ? 'disabled' : ''}>
+                            ${isSelected ? `<i class="fas fa-check"></i> Selected by ${selectedBy}` : '<i class="far fa-heart"></i> Select This Gift'}
+                        </button>
+                    </div>
                 </div>
             `;
             
             giftGrid.appendChild(giftCard);
+            
+            // Preload image
+            if (!isSelected) {
+                const img = new Image();
+                img.src = gift.image;
+                img.onload = function() {
+                    const cardImg = giftCard.querySelector('img');
+                    if (cardImg) {
+                        cardImg.classList.remove('loading');
+                        const loadingText = giftCard.querySelector('.loading-text');
+                        if (loadingText) loadingText.remove();
+                    }
+                };
+                img.onerror = function() {
+                    const cardImg = giftCard.querySelector('img');
+                    if (cardImg) {
+                        cardImg.src = 'images/default-gift.jpg';
+                        cardImg.classList.remove('loading');
+                        const loadingText = giftCard.querySelector('.loading-text');
+                        if (loadingText) loadingText.remove();
+                    }
+                };
+            }
         });
         
         // Add event listeners to select buttons
-        document.querySelectorAll('.select-button').forEach(button => {
-            button.addEventListener('click', function() {
+        document.querySelectorAll('.select-button:not(:disabled)').forEach(button => {
+            button.addEventListener('click', async function() {
                 const giftId = parseInt(this.getAttribute('data-id'));
                 const gift = gifts.find(g => g.id === giftId);
                 
-                // Check if options are required but not selected
+                // Check if gift is already selected
+                const existingSelection = await checkExistingSelection(giftId);
+                if (existing
+                        // Check if options are required but not selected
                 if (gift.options && gift.options.length > 0) {
                     const selectedOption = document.querySelector(`input[name="gift-${giftId}"]:checked`);
                     if (!selectedOption) {
-                        alert('Please select an option first');
+                        showSyncStatus('Please select an option first', 'error');
                         return;
                     }
                 }
-                
+
+                // Get user name
                 const selectedBy = prompt('Please enter your name to select this gift:');
-                if (selectedBy && selectedBy.trim() !== '') {
-                    database.ref(`selections/${giftId}`).set({
-                        selectedBy: selectedBy.trim(),
-                        date: new Date().toISOString(),
-                        option: gift.options && gift.options.length > 0 
-                            ? document.querySelector(`input[name="gift-${giftId}"]:checked`).value 
-                            : ''
-                    }).then(() => {
-                        showSyncStatus('Gift selected successfully!');
-                    }).catch(error => {
-                        console.error('Error selecting gift:', error);
-                        showSyncStatus('Error selecting gift', 'error');
-                    });
+                if (!selectedBy || selectedBy.trim() === '') {
+                    showSyncStatus('Selection cancelled', 'error');
+                    return;
+                }
+
+                // Prepare selection data
+                const selectionData = {
+                    selectedBy: selectedBy.trim(),
+                    date: new Date().toISOString(),
+                    option: gift.options && gift.options.length > 0 
+                        ? document.querySelector(`input[name="gift-${giftId}"]:checked`).value 
+                        : ''
+                };
+
+                // Save to Firebase
+                try {
+                    await database.ref(`selections/${giftId}`).set(selectionData);
+                    showSyncStatus(`${gift.name} selected successfully!`);
+                } catch (error) {
+                    console.error('Error selecting gift:', error);
+                    showSyncStatus('Failed to select gift. Please try again.', 'error');
                 }
             });
         });
@@ -330,7 +339,50 @@ function loadGifts() {
     }, (error) => {
         console.error('Firebase error:', error);
         showSyncStatus('Error loading gifts', 'error');
-        giftGrid.innerHTML = '<div class="error">Error loading gifts. Please try again later.</div>';
+        const giftGrid = document.getElementById('giftGrid');
+        if (giftGrid) {
+            giftGrid.innerHTML = '<div class="error">Error loading gifts. Please try again later.</div>';
+        }
+    });
+}
+
+// Check if a gift is already selected
+async function checkExistingSelection(giftId) {
+    try {
+        const snapshot = await database.ref(`selections/${giftId}`).once('value');
+        return snapshot.val();
+    } catch (error) {
+        console.error('Error checking selection:', error);
+        return null;
+    }
+}
+
+// Show selection conflict modal
+function showSelectionConflict(gift, selection) {
+    const conflictModal = document.createElement('div');
+    conflictModal.className = 'conflict-modal';
+    conflictModal.innerHTML = `
+        <div class="conflict-modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Already Selected</h3>
+            <p>The "${gift.name}" was selected by ${selection.selectedBy} on ${new Date(selection.date).toLocaleDateString()}.</p>
+            <div class="conflict-actions">
+                <button class="btn-cancel">OK</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(conflictModal);
+    
+    // Close modal
+    conflictModal.querySelector('.btn-cancel').addEventListener('click', () => {
+        conflictModal.remove();
+    });
+    
+    // Close when clicking outside
+    conflictModal.addEventListener('click', (e) => {
+        if (e.target === conflictModal) {
+            conflictModal.remove();
+        }
     });
 }
 
@@ -367,12 +419,30 @@ function setupRSVP() {
     rsvpForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const name = document.getElementById('rsvpName').value.trim();
-        const email = document.getElementById('rsvpEmail').value.trim();
-        const attendance = document.getElementById('rsvpAttendance').value;
+        const nameInput = document.getElementById('rsvpName');
+        const emailInput = document.getElementById('rsvpEmail');
+        const attendanceSelect = document.getElementById('rsvpAttendance');
         
-        if (!name || !email) {
-            alert('Please fill in all required fields');
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const attendance = attendanceSelect.value;
+        
+        // Validate inputs
+        if (!name) {
+            alert('Please enter your name');
+            nameInput.focus();
+            return;
+        }
+        
+        if (!email) {
+            alert('Please enter your email');
+            emailInput.focus();
+            return;
+        }
+        
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            alert('Please enter a valid email address');
+            emailInput.focus();
             return;
         }
         
@@ -383,6 +453,7 @@ function setupRSVP() {
             date: new Date().toISOString()
         };
         
+        // Save to Firebase
         database.ref('rsvps').push(rsvpData)
             .then(() => {
                 showSyncStatus('RSVP submitted successfully!');
@@ -391,8 +462,51 @@ function setupRSVP() {
             })
             .catch((error) => {
                 console.error('Error saving RSVP:', error);
-                showSyncStatus('Error submitting RSVP', 'error');
+                showSyncStatus('Error submitting RSVP. Please try again.', 'error');
             });
+    });
+}
+
+// Image Zoom Functionality
+function setupImageZoom() {
+    const zoomModal = document.getElementById('imageZoomModal');
+    const zoomedImg = document.getElementById('zoomedImage');
+    const closeZoom = document.querySelector('.close-zoom');
+    
+    if (!zoomModal || !zoomedImg || !closeZoom) return;
+
+    // Click on gift images to zoom
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG' && e.target.closest('.gift-card')) {
+            const img = e.target;
+            if (img.src) {
+                zoomedImg.src = img.src;
+                zoomModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+        }
+    });
+
+    // Close zoom modal
+    closeZoom.addEventListener('click', function() {
+        zoomModal.style.display = 'none';
+        document.body.style.overflow = ''; // Re-enable scrolling
+    });
+
+    // Close when clicking outside image
+    zoomModal.addEventListener('click', function(e) {
+        if (e.target === zoomModal) {
+            zoomModal.style.display = 'none';
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && zoomModal.style.display === 'flex') {
+            zoomModal.style.display = 'none';
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }
     });
 }
 
@@ -406,13 +520,16 @@ function showSyncStatus(message, type = '') {
     const status = document.createElement('div');
     status.className = `sync-status ${type}`;
     status.innerHTML = `
-        <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
         ${message}
     `;
     document.body.appendChild(status);
     
-    setTimeout(() => {
-        status.style.opacity = '0';
-        setTimeout(() => status.remove(), 300);
-    }, 3000);
+    // Auto-hide after 3 seconds (unless it's an  error)
+    if (type !== 'error') {
+        setTimeout(() => {
+            status.style.opacity = '0';
+            setTimeout(() => status.remove(), 300);
+        }, 3000);
+    }
 }
