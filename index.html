@@ -11,9 +11,9 @@
 <body>
     <div class="hero-section">
         <div class="slideshow">
-            <img src="images/slide1.jpeg" class="active">
-            <img src="images/slide2.jpeg">
-            <img src="images/slide3.jpeg">
+            <img src="images/slide1.jpg" class="active" alt="Birthday celebration">
+            <img src="images/slide2.jpg" alt="Gift ideas">
+            <img src="images/slide3.jpg" alt="Party decorations">
         </div>
         <div class="hero-content">
             <h1>Celebrating another wonderful year with love and joy</h1>
@@ -22,15 +22,17 @@
     </div>
     
     <div class="floral-bg"></div>
-    <img src="images/floral1.png" class="floral-decoration floral-1">
-    <img src="images/floral1.png" class="floral-decoration floral-2">
+    <img src="images/floral1.png" class="floral-decoration floral-1" alt="Floral decoration">
+    <img src="images/floral1.png" class="floral-decoration floral-2" alt="Floral decoration">
     
     <div class="container">
         <header>
             <h1>Gift Registry</h1>
             <p class="subtitle">Select your gift below to help celebrate this special occasion</p>
         </header>
-        <div class="gift-grid" id="giftGrid"></div>
+        <div class="gift-grid" id="giftGrid">
+            <div class="loading-gifts">Loading gifts...</div>
+        </div>
     </div>
     
     <!-- RSVP Modal -->
@@ -102,11 +104,12 @@
             </table>
         </div>
     </div>
+
     <!-- Image Zoom Modal -->
-<div class="image-zoom-modal" id="imageZoomModal">
-    <span class="close-zoom">&times;</span>
-    <img class="image-zoom-content" id="zoomedImage">
-</div>
+    <div class="image-zoom-modal" id="imageZoomModal">
+        <span class="close-zoom">&times;</span>
+        <img class="image-zoom-content" id="zoomedImage" alt="Zoomed gift image">
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -116,6 +119,5 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/script.js"></script>
     <script src="js/admin.js"></script>
-    
 </body>
 </html>
