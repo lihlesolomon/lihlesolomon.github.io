@@ -3,135 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nicky's Birthday Gift Registry</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Nicky's Birthday Registry</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="hero">
-        <div class="hero-slide active" style="background-image: url('images/hero1.jpg')"></div>
-        <h1>Gift Registry</h1>
-        <p>Select your gift below to help celebrate this special occasion</p>
-    </header>
-
-    <main class="container">
-        <section id="giftRegistry">
-            <div id="giftGrid" class="gift-grid"></div>
-        </section>
-
-        <button id="rsvpButton" class="btn rsvp-button">
-            <i class="fas fa-envelope"></i> RSVP Now
-        </button>
-
-        <button id="adminToggle" class="admin-toggle">
-            <i class="fas fa-lock"></i> Admin
-        </button>
-
-        <section id="adminSection" class="admin-section">
-            <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
-            <div class="admin-actions">
-                <button id="exportGiftsBtn" class="btn">
-                    <i class="fas fa-download"></i> Export Gift Selections
-                </button>
-                <button id="exportRsvpsBtn" class="btn">
-                    <i class="fas fa-download"></i> Export RSVPs
-                </button>
-            </div>
-            
-            <div class="admin-tables">
-                <h3><i class="fas fa-gift"></i> Selected Gifts</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Gift</th>
-                            <th>Selected By</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="selectionsBody"></tbody>
-                </table>
-
-                <h3><i class="fas fa-users"></i> RSVPs</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Attending</th>
-                            <th>Message</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rsvpsBody"></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-
-    <!-- Modals -->
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3><i class="fas fa-lock"></i> Admin Login</h3>
-            <form id="passwordForm">
-                <div class="form-group">
-                    <label for="adminPassword">Password</label>
-                    <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
-                </div>
-                <button type="submit" class="btn">
-                    <i class="fas fa-unlock"></i> Unlock
-                </button>
-            </form>
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Celebrating another wonderful year with love and joy</h1>
+            <a href="#" id="rsvpButton" class="rsvp-button">RSVP Here</a>
         </div>
     </div>
-
-    <div id="rsvpModal" class="modal">
+    
+    <div class="floral-bg"></div>
+    <img src="images/floral1.png" class="floral-decoration floral-1">
+    <img src="images/floral1.png" class="floral-decoration floral-2">
+    
+    <div class="container">
+        <header>
+            <h1>Gift Registry</h1>
+            <p class="subtitle">Select your gift below to help celebrate this special occasion</p>
+        </header>
+        <div class="gift-grid" id="giftGrid"></div>
+    </div>
+    
+    <!-- RSVP Modal -->
+    <div class="modal" id="rsvpModal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3><i class="fas fa-envelope"></i> RSVP</h3>
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>RSVP for Nicky's Birthday</h2>
             <form id="rsvpForm">
                 <div class="form-group">
-                    <label for="rsvpName">Your Name</label>
+                    <label class="form-label">Your Name</label>
                     <input type="text" id="rsvpName" required>
                 </div>
                 <div class="form-group">
-                    <label>Will you attend?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="rsvpYes" name="attending" value="yes" checked>
-                            <label for="rsvpYes">Yes</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="rsvpNo" name="attending" value="no">
-                            <label for="rsvpNo">No</label>
-                        </div>
-                    </div>
+                    <label class="form-label">Email</label>
+                    <input type="email" id="rsvpEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="rsvpMessage">Message (Optional)</label>
-                    <textarea id="rsvpMessage" rows="4"></textarea>
+                    <label class="form-label">Will you attend?</label>
+                    <select id="rsvpAttendance" required>
+                        <option value="yes">Yes, I'll be there!</option>
+                        <option value="no">Sorry, can't make it</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn">
-                    <i class="fas fa-paper-plane"></i> Submit RSVP
+                <button type="submit">Submit RSVP</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Admin Password Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-modal-content">
+            <h2>Admin Access</h2>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label class="form-label">Enter Password</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-lock-open"></i> Unlock Admin
                 </button>
             </form>
         </div>
     </div>
-
-    <div id="imageZoomModal" class="modal">
-        <div class="modal-content">
-            <span class="close-zoom">&times;</span>
-            <div class="image-container">
-                <img id="zoomedImage" class="zoomed-image">
-            </div>
+    
+    <!-- Admin Toggle -->
+    <div class="admin-toggle" id="adminToggle">
+        <i class="fas fa-cog"></i>
+    </div>
+    
+    <!-- Admin Section -->
+    <div class="admin-section" id="adminSection">
+        <h2>Admin Dashboard</h2>
+        <div class="admin-buttons">
+            <button id="exportRSVPBtn"><i class="fas fa-download"></i> Export RSVPs</button>
+            <button id="exportGiftsBtn"><i class="fas fa-gift"></i> Export Gift Selections</button>
+        </div>
+        <div class="admin-tables-container">
+            <h3>Gift Selections</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gift</th>
+                        <th>Selected By</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="selectionsBody"></tbody>
+            </table>
         </div>
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     
-    <script src="js/script.js"></script>
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
