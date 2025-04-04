@@ -108,7 +108,23 @@ const gifts = [
         image: "images/kapten-son.jpeg" 
     }
 ];
+// Initialize the app
+window.addEventListener('DOMContentLoaded', () => {
+    // Check Firebase connection
+    if (!database) {
+        console.error('Firebase not initialized');
+        showSyncStatus('Error connecting to database', 'error');
+        return;
+    }
 
+    // Initialize all components
+    initSlideshow();
+    loadGifts();
+    setupRSVP();
+    
+    // Show loading status
+    showSyncStatus('Loading registry...');
+});
 // Load gifts into the page
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
