@@ -32,7 +32,25 @@ body {
     font-size: 3rem;
     margin-bottom: 1.5rem;
 }
+.slideshow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
 
+.slideshow img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slideshow img.active {
+    opacity: 1;
+}
 .rsvp-button {
     background-color: var(--sage-green);
     color: white;
