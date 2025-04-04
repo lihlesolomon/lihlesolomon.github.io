@@ -7,9 +7,7 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/tempo-gold-plated-black-dial-bracelet-watch-05s710abjy8/p", 
         image: "images/watch.jpeg",
-        options: [
-            { label: "Size", value: "Standard" }
-        ]
+        options: []
     },
     { 
         id: 2, 
@@ -18,10 +16,7 @@ const gifts = [
         source: "Found on BASH",
         link: "https://bash.com/stanley-quencher-h2-o-flowstate-black-1-18l-tumbler-130609adjq5/p", 
         image: "images/stanley-cup.jpeg",
-        options: [
-            { label: "1st item", value: "99.0 cm" },
-            { label: "2nd item", value: "4.8 cm" }
-        ]
+        options: []
     },
     { 
         id: 3, 
@@ -51,104 +46,74 @@ const gifts = [
         options: []
     },
     { 
-        id: 6, 
-        name: "Edgars 212 VIP Black", 
-        description: "212 VIP BLACK STIMULATING & Powerful", 
-        source: "Edgars",
-        link: "https://www.edgars.co.za/products/212-vip-men-black-eau-de-parfum-c28200330?srsltid=AfmBOooajR1U2dQWkGxHGd__1w6wbH9flmf2YhJP5LPWPD5wz4b8lyFS", 
-        image: "images/perfume.jpeg",
-        options: []
-    },
-    { 
         id: 7, 
         name: "Factory NBA Set", 
         description: "NBA Track Pant & NBA Hoodie - size Large (Sold Separate)", 
-        source: "Cotton On",
         link: "https://cottonon.com/ZA/nba-track-pant/5299813-01.html?dwvar_5299813-01_color=5299813-01&cgid=mens-fleece-bottoms&originalPid=5299813-01#start=7&sz=60", 
-        image: "images/nba-set.jpeg",
-        options: []
+        image: "images/nba-set.jpeg" 
     },
     { 
         id: 8, 
         name: "Adidas Samba OG", 
         description: "adidas Originals Men's Samba OG Sneaker - size 6 (FOUND ON BASH)", 
-        source: "Bash",
         link: "https://bash.com/adidas-originals-men-s-samba-og-sneaker-061017aajg4/p", 
-        image: "images/samba-shoes.jpeg",
-        options: []
+        image: "images/samba-shoes.jpeg" 
     },
     { 
         id: 9, 
         name: "Airforce 1 White", 
         description: "White Airforce 1 - size 6 (FOUND ON BASH)", 
-        source: "Bash",
         link: "https://bash.com/nike-men-s-air-force-1-07-white-sneaker-060601abug4/p?idsku=971910&bash_campaign=20746270549&gad_source=1&gclid=CjwKCAjw47i_BhBTEiwAaJfPpgUstO11TpPxCKLPfoCZRB-Nn1H16TRrfOhCxB4NTKi_eGsoXWJfkRoCs1MQAvD_BwE", 
-        image: "images/airforce.jpeg",
-        options: []
+        image: "images/airforce.jpeg" 
     },
     { 
         id: 10, 
         name: "Steve Madden Leon Cognac Brown", 
         description: "LEON COGNAC LEATHER BROWN - size 8 (currently on sale online)", 
-        source: "Steve Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-shoes-sandals/products/leon-black-leather", 
-        image: "images/steve-madden.jpeg",
-        options: []
+        image: "images/steve-madden.jpeg" 
     },
     { 
         id: 11, 
         name: "Steve Madden Leon Cognac Black", 
         description: "LEON COGNAC LEATHER BLACK - size 8 (currently on sale online)", 
-        source: "Steve Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-shoes-sandals/products/leon-black-leather", 
-        image: "images/steve-madden-black.jpeg",
-        options: []
+        image: "images/steve-madden-black.jpeg" 
     },
     { 
         id: 12, 
         name: "Steve Madden Denim Set", 
         description: "BLAKE MID BLUE PRINTED DENIM SHIRT - Large & ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)", 
-        source: "Steve Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-clothing/products/blake-mid-blue-printed-denim-shirt", 
-        image: "images/denim-set.jpeg",
-        options: []
+        image: "images/denim-set.jpeg" 
     },
     { 
         id: 13, 
         name: "Crocs Echo Black", 
         description: "Crocs Men's Echo Black Clog - size 6.5 (FOUND ON BASH)", 
-        source: "Bash",
         link: "https://bash.com/crocs-men-s-echo-black-clog-060601agml0/p", 
-        image: "images/crocs.jpeg",
-        options: []
+        image: "images/crocs.jpeg" 
     },
     { 
         id: 14, 
         name: "Kapten & Son Lund Pro All Black", 
         description: "LUND PRO ALL BLACK (50% discount available)", 
-        source: "Kapten & Son",
         link: "https://kapten-son.co.za/products/lund-pro-all-black", 
-        image: "images/kapten-son.jpeg",
-        options: []
+        image: "images/kapten-son.jpeg" 
     }
 ];
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    // Check Firebase connection
     if (!database) {
-        console.error('Firebase not initialized');
         showSyncStatus('Error connecting to database', 'error');
         return;
     }
 
-    // Initialize all components
     initSlideshow();
     loadGifts();
     setupRSVP();
     setupImageZoom();
-    
-    // Show loading status
     showSyncStatus('Loading registry...');
 });
 
@@ -156,60 +121,53 @@ document.addEventListener('DOMContentLoaded', function() {
 function initSlideshow() {
     const slides = document.querySelectorAll('.slideshow img');
     if (slides.length === 0) return;
-    
+
     let currentSlide = 0;
-    
+
     function showSlide(n) {
         slides.forEach((slide, index) => {
             slide.classList.toggle('active', index === n);
         });
     }
-    
+
     function nextSlide() {
         currentSlide = (currentSlide + 1) % slides.length;
         showSlide(currentSlide);
     }
-    
+
     showSlide(0);
-    setInterval(nextSlide, 5000); // Change slide every 5 seconds
+    setInterval(nextSlide, 5000);
 }
 
 // Load gifts into the page
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
     if (!giftGrid) {
-        console.error('Gift grid element not found');
         showSyncStatus('Error loading gifts', 'error');
         return;
     }
-    
-    // Show loading state
+
     giftGrid.innerHTML = '<div class="loading-gifts">Loading gifts...</div>';
-    
+
     database.ref('selections').on('value', (snapshot) => {
         const selections = snapshot.val() || {};
-        
-        // Clear loading message
         giftGrid.innerHTML = '';
-        
-        // Check if gifts array exists
+
         if (!gifts || gifts.length === 0) {
             giftGrid.innerHTML = '<div class="no-gifts">No gifts found in the registry</div>';
             return;
         }
-        
-        // Create gift cards
+
         gifts.forEach(gift => {
             const isSelected = selections[gift.id];
             const selectedBy = isSelected ? selections[gift.id].selectedBy : null;
             const selectedOption = isSelected ? selections[gift.id].option : '';
-            
+
             const giftCard = document.createElement('div');
             giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
             giftCard.dataset.id = gift.id;
-            
-            // Create options HTML if options exist
-            const optionsHTML = gift.options && gift.options.length > 0 
+
+            const optionsHTML = gift.options?.length
                 ? gift.options.map(option => `
                     <div class="option">
                         <input type="radio" 
@@ -224,7 +182,7 @@ function loadGifts() {
                     </div>
                 `).join('')
                 : '';
-            
+
             giftCard.innerHTML = `
                 <div class="gift-image-container">
                     <img src="${gift.image}" alt="${gift.name}" 
@@ -248,44 +206,20 @@ function loadGifts() {
                     </div>
                 </div>
             `;
-            
+
             giftGrid.appendChild(giftCard);
-            
-            // Preload image
+
             if (!isSelected) {
-                const img = new Image();
-                img.src = gift.image;
-                img.onload = function() {
-                    const cardImg = giftCard.querySelector('img');
-                    if (cardImg) {
-                        cardImg.classList.remove('loading');
-                        const loadingText = giftCard.querySelector('.loading-text');
-                        if (loadingText) loadingText.remove();
-                    }
-                };
-                img.onerror = function() {
-                    const cardImg = giftCard.querySelector('img');
-                    if (cardImg) {
-                        cardImg.src = 'images/default-gift.jpg';
-                        cardImg.classList.remove('loading');
-                        const loadingText = giftCard.querySelector('.loading-text');
-                        if (loadingText) loadingText.remove();
-                    }
-                };
+                preloadImage(gift.image, giftCard);
             }
         });
-        
-        // Add event listeners to select buttons
+
         document.querySelectorAll('.select-button:not(:disabled)').forEach(button => {
             button.addEventListener('click', async function() {
                 const giftId = parseInt(this.getAttribute('data-id'));
                 const gift = gifts.find(g => g.id === giftId);
-                
-                // Check if gift is already selected
-                const existingSelection = await checkExistingSelection(giftId);
-                if (existing
-                        // Check if options are required but not selected
-                if (gift.options && gift.options.length > 0) {
+
+                if (gift.options?.length > 0) {
                     const selectedOption = document.querySelector(`input[name="gift-${giftId}"]:checked`);
                     if (!selectedOption) {
                         showSyncStatus('Please select an option first', 'error');
@@ -293,23 +227,20 @@ function loadGifts() {
                     }
                 }
 
-                // Get user name
                 const selectedBy = prompt('Please enter your name to select this gift:');
-                if (!selectedBy || selectedBy.trim() === '') {
+                if (!selectedBy?.trim()) {
                     showSyncStatus('Selection cancelled', 'error');
                     return;
                 }
 
-                // Prepare selection data
                 const selectionData = {
                     selectedBy: selectedBy.trim(),
                     date: new Date().toISOString(),
-                    option: gift.options && gift.options.length > 0 
+                    option: gift.options?.length 
                         ? document.querySelector(`input[name="gift-${giftId}"]:checked`).value 
                         : ''
                 };
 
-                // Save to Firebase
                 try {
                     await database.ref(`selections/${giftId}`).set(selectionData);
                     showSyncStatus(`${gift.name} selected successfully!`);
@@ -319,55 +250,55 @@ function loadGifts() {
                 }
             });
         });
-        
     }, (error) => {
         console.error('Firebase error:', error);
         showSyncStatus('Error loading gifts', 'error');
-        const giftGrid = document.getElementById('giftGrid');
-        if (giftGrid) {
-            giftGrid.innerHTML = '<div class="error">Error loading gifts. Please try again later.</div>';
-        }
+        giftGrid.innerHTML = '<div class="error">Error loading gifts. Please try again later.</div>';
     });
 }
 
-// Check if a gift is already selected
-async function checkExistingSelection(giftId) {
-    try {
-        const snapshot = await database.ref(`selections/${giftId}`).once('value');
-        return snapshot.val();
-    } catch (error) {
-        console.error('Error checking selection:', error);
-        return null;
-    }
+// Preload image
+function preloadImage(src, giftCard) {
+    const img = new Image();
+    img.src = src;
+    img.onload = function() {
+        const cardImg = giftCard.querySelector('img');
+        if (cardImg) {
+            cardImg.classList.remove('loading');
+            const loadingText = giftCard.querySelector('.loading-text');
+            if (loadingText) loadingText.remove();
+        }
+    };
+    img.onerror = function() {
+        const cardImg = giftCard.querySelector('img');
+        if (cardImg) {
+            cardImg.src = 'images/default-gift.jpg';
+            cardImg.classList.remove('loading');
+            const loadingText = giftCard.querySelector('.loading-text');
+            if (loadingText) loadingText.remove();
+        }
+    };
 }
 
-// Show selection conflict modal
-function showSelectionConflict(gift, selection) {
-    const conflictModal = document.createElement('div');
-    conflictModal.className = 'conflict-modal';
-    conflictModal.innerHTML = `
-        <div class="conflict-modal-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> Already Selected</h3>
-            <p>The "${gift.name}" was selected by ${selection.selectedBy} on ${new Date(selection.date).toLocaleDateString()}.</p>
-            <div class="conflict-actions">
-                <button class="btn-cancel">OK</button>
-            </div>
-        </div>
+// Show sync status
+function showSyncStatus(message, type = '') {
+    const existingStatus = document.querySelector('.sync-status');
+    if (existingStatus) existingStatus.remove();
+
+    const status = document.createElement('div');
+    status.className = `sync-status ${type}`;
+    status.innerHTML = `
+        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+        ${message}
     `;
-    
-    document.body.appendChild(conflictModal);
-    
-    // Close modal
-    conflictModal.querySelector('.btn-cancel').addEventListener('click', () => {
-        conflictModal.remove();
-    });
-    
-    // Close when clicking outside
-    conflictModal.addEventListener('click', (e) => {
-        if (e.target === conflictModal) {
-            conflictModal.remove();
-        }
-    });
+    document.body.appendChild(status);
+
+    if (type !== 'error') {
+        setTimeout(() => {
+            status.style.opacity = '0';
+            setTimeout(() => status.remove(), 300);
+        }, 3000);
+    }
 }
 
 // RSVP functionality
@@ -492,28 +423,4 @@ function setupImageZoom() {
             document.body.style.overflow = ''; // Re-enable scrolling
         }
     });
-}
-
-// Show sync status
-function showSyncStatus(message, type = '') {
-    const existingStatus = document.querySelector('.sync-status');
-    if (existingStatus) {
-        existingStatus.remove();
-    }
-    
-    const status = document.createElement('div');
-    status.className = `sync-status ${type}`;
-    status.innerHTML = `
-        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
-        ${message}
-    `;
-    document.body.appendChild(status);
-    
-    // Auto-hide after 3 seconds (unless it's an  error)
-    if (type !== 'error') {
-        setTimeout(() => {
-            status.style.opacity = '0';
-            setTimeout(() => status.remove(), 300);
-        }, 3000);
-    }
 }
