@@ -421,3 +421,51 @@ function setupImageZoom() {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const slides = document.querySelectorAll('.slideshow img');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Show the first slide initially
+    showSlide(currentSlide);
+
+    // Automatically transition slides every 5 seconds
+    setInterval(nextSlide, 5000);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const rsvpButton = document.getElementById('rsvpButton');
+    const rsvpModal = document.getElementById('rsvpModal');
+    const closeModal = document.getElementById('closeModal');
+
+    if (rsvpButton && rsvpModal) {
+        rsvpButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            rsvpModal.style.display = 'flex';
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', function () {
+            rsvpModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function (e) {
+        if (e.target === rsvpModal) {
+            rsvpModal.style.display = 'none';
+        }
+    });
+});
