@@ -111,6 +111,9 @@ const gifts = [
 // Initialize the app
 window.addEventListener('DOMContentLoaded', () => {
     // Check Firebase connection
+    loadGifts();
+    initSlideshow();
+    setupRSVP();
     if (!database) {
         console.error('Firebase not initialized');
         showSyncStatus('Error connecting to database', 'error');
@@ -228,6 +231,59 @@ function showSyncStatus(message) {
     setTimeout(() => {
         status.remove();
     }, 3000);
+}
+// RSVP functionality
+function setupRSVP() {
+    const rsvpModal = document.getElementById('rsvpModal');
+    const closeModal = document.getElementById('closeModal');
+    
+    if (!rsvpModal || !closeModal) {
+        console.error('RSVP modal elements not found');
+        return;
+    }
+    
+    document.getElementById('rsvpButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        rsvpModal.style.display = 'block';
+    });
+    
+    closeModal.addEventListener('click', function() {
+        rsvpModal.style.display = 'none';
+    });
+    
+    // Close when clicking outside modal
+    window.addEventListener('click', function(e) {
+        if (e.target === rsvpModal) {
+            rsvpModal.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const rsvpData = {
+            name: document.getElementById('rsvpName').value.trim(),
+            email: document.getElementById('rsvpEmail').value.trim(),
+            attendance: document.getElementById('rsvpAttendance').value,
+            date: new Date().toISOString()
+        };
+        
+        if (!rsvpData.name || !rsvpData.email) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        database.ref('rsvps').push(rsvpData)
+            .then(() => {
+                showSyncStatus('RSVP submitted successfully!');
+                document.getElementById('rsvpForm').reset();
+                rsvpModal.style.display = 'none';
+            })
+            .catch((error) => {
+                console.error('Error saving RSVP:', error);
+                showSyncStatus('Error submitting RSVP', 'error');
+            });
+    });
 }
 
 // Initialize the page
