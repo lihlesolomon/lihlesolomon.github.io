@@ -30,17 +30,15 @@ body {
     flex-direction: column;
 }
 
+/* Slideshow */
 .slideshow {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
     width: 100%;
-    height: 100%;
-    z-index: 1;
+    height: 400px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
 }
 
 .slideshow img {
@@ -86,6 +84,25 @@ body {
 
 .hero-content .rsvp-button:hover {
     background-color: #0056b3;
+}
+
+/* RSVP Button */
+.rsvp-button {
+    background-color: #007bff; /* Restore the correct blue color */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: none; /* Remove the shadow */
+}
+
+.rsvp-button:hover {
+    background-color: #0056b3;
+    box-shadow: none; /* Ensure no shadow on hover */
 }
 
 /* Floral Decorations */
