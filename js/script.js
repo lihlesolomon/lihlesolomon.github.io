@@ -1,4 +1,4 @@
-// Gift Data
+ // Gift Data (unchanged from your original)
 const gifts = [
     { 
         id: 1, 
@@ -150,10 +150,68 @@ const gifts = [
         image: "images/denim-waist.jpeg" 
     }
 ];
+// Initialize Firebase
+const database = firebase.database();
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
-    if (!database) {
+// Load gifts without showing who selected them
+function loadGifts() {
+    const giftGrid = document.getElementById('giftGrid');
+    giftGrid.innerHTML = '<div class="loading">Loading gifts...</div>';
+
+    database.ref('selections').on('value', (snapshot) => {
+        const selections = snapshot.val() || {};
+        giftGrid.innerHTML = '';
+
+        gifts.forEach(gift => {
+            const isSelected = !!selections[gift.id]; // Just check if selected, don't use name
+
+            const giftCard = document.createElement('div');
+            giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
+            giftCard.dataset.id = gift.id;
+
+            giftCard.innerHTML = `
+                <div class="gift-image">
+                    <img src="${gift.image}" alt="${gift.name}" loading="lazy">
+                </div>
+                <div class="gift-details">
+                    <h3>${gift.name}</h3>
+                    <p>${gift.description}</p>
+                    ${gift.source ? `<p class="source">Source: ${gift.source}</p>` : ''}
+                    ${gift.link !== '#' ? `<a href="${gift.link}" target="_blank">View Item</a>` : ''}
+                    <div class="selection-area">
+                        ${isSelected ? 
+                            `<div class="selected-msg">✔️ Selected</div>` : // Removed name display
+                            `<button class="select-btn" data-id="${gift.id}">Select Gift</button>`
+                        }
+                    </div>
+                </div>
+            `;
+
+            giftGrid.appendChild(giftCard);
+        });
+
+        // Selection handler (still stores name in Firebase but doesn't display it)
+        document.querySelectorAll('.select-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const giftId = this.dataset.id;
+                const gift = gifts.find(g => g.id == giftId);
+                const userName = prompt(`Select ${gift.name} (your name will be recorded but not displayed):`);
+                
+                if (userName && userName.trim()) {
+                    database.ref(`selections/${giftId}`).set({
+                        giftName: gift.name,
+                        selectedBy: userName.trim(), // Still stored but not shown
+                        selectedAt: new Date().toISOString()
+                    });
+                }
+            });
+        });
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+      if (!database) {
         showSyncStatus('Error connecting to database', 'error');
         return;
     }
@@ -539,4 +597,6 @@ document.addEventListener('DOMContentLoaded', function () {
             rsvpModal.style.display = 'none';
         }
     });
+});
+    // ... (keep your existing slideshow/RSVP initialization code)
 });
