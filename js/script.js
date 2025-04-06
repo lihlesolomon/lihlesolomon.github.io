@@ -198,37 +198,60 @@ function loadGifts() {
     giftGrid.innerHTML = '<div class="loading-gifts">Loading gifts...</div>';
 
     database.ref('selections').on('value', (snapshot) => {
-        const selections = snapshot.val() || {};
-        giftGrid.innerHTML = '';
+    const selections = snapshot.val() || {};
+    giftGrid.innerHTML = '';
 
-        if (!gifts || gifts.length === 0) {
-            giftGrid.innerHTML = '<div class="no-gifts">No gifts found in the registry</div>';
-            return;
-        }
+    if (!gifts || gifts.length === 0) {
+        giftGrid.innerHTML = '<div class="no-gifts">No gifts found in the registry</div>';
+        return;
+    }
 
-        gifts.forEach(gift => {
-            const isSelected = selections[gift.id];
-            const selectedOption = isSelected ? selections[gift.id].option : '';
+    gifts.forEach(gift => {
+        const isSelected = selections[gift.id];
+        const selectedGiftName = isSelected ? selections[gift.id].giftName : '';
 
-            const giftCard = document.createElement('div');
-            giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
-            giftCard.dataset.id = gift.id;
+        const giftCard = document.createElement('div');
+        giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
+        giftCard.dataset.id = gift.id;
 
-            const optionsHTML = gift.options?.length
-                ? gift.options.map(option => `
-                    <div class="option">
-                        <input type="radio" 
-                               id="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}" 
-                               name="gift-${gift.id}" 
-                               value="${option.value}"
-                               ${selectedOption === option.value ? 'checked' : ''}
-                               ${isSelected ? 'disabled' : ''}>
-                        <label for="gift-${gift.id}-${option.value.replace(/\s+/g, '-')}">
-                            ${option.label}: ${option.value}
-                        </label>
-                    </div>
-                `).join('')
-                : '';
+        giftCard.innerHTML = `
+            <div class="gift-image">
+                <img src="${gift.imageUrl}" alt="${gift.name}">
+            </div>
+            <div class="gift-details">
+                <h3>${gift.name}</h3>
+                <p>${gift.description}</p>
+                <div class="gift-selection">
+                    ${!isSelected ? `
+                        <button class="select-gift" data-gift-id="${gift.id}" data-gift-name="${gift.name}">
+                            Select This Gift
+                        </button>
+                    ` : `
+                        <div class="selected-message">
+                            ✔️ ${selectedGiftName} has been selected!
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+
+        giftGrid.appendChild(giftCard);
+    });
+
+    // Add event listeners to the new buttons
+    document.querySelectorAll('.select-gift').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const giftId = e.target.dataset.giftId;
+            const giftName = e.target.dataset.giftName;
+            
+            // Save to Firebase
+            database.ref('selections/' + giftId).set({
+                giftName: giftName,
+                selectedAt: new Date().toISOString()
+            });
+        });
+    });
+});
 
             giftCard.innerHTML = `
                 <div class="gift-image-container">
