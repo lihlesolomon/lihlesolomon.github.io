@@ -21,9 +21,9 @@ const gifts = [
     { 
         id: 3, 
         name: "Makeup Bag", 
-        description: "From Glo Classic Beauty Palour on IG", 
-        source: "Glo Classic Beauty",
-        link: "#", 
+        description: "From Glo Classic Beauty Palour", 
+        source: "Glo Classic Beauty on Whatsapp",
+        link: "https://wa.me/p/24291791643800921/27633059665", 
         image: "images/makeup-bag.jpeg",
         options: []
     },
@@ -48,65 +48,106 @@ const gifts = [
     { 
         id: 6, 
         name: "Edgars 212 VIP Black", 
-        description: "212 VIP BLACK STIMULATING & Powerful", 
+        description: "212 VIP BLACK STIMULATING & Powerful",
+        source: "Edgars",
         link: "https://www.edgars.co.za/products/212-vip-men-black-eau-de-parfum-c28200330?srsltid=AfmBOooajR1U2dQWkGxHGd__1w6wbH9flmf2YhJP5LPWPD5wz4b8lyFS", 
         image: "images/perfume.jpeg" 
     },
     { 
         id: 7, 
         name: "Factory NBA Set", 
-        description: "NBA Track Pant & NBA Hoodie - size Large (Sold Separate)", 
+        description: "NBA Track Pant - size Large (Sold Separate)", 
+        source: "Found on Cotton On",
         link: "https://cottonon.com/ZA/nba-track-pant/5299813-01.html?dwvar_5299813-01_color=5299813-01&cgid=mens-fleece-bottoms&originalPid=5299813-01#start=7&sz=60", 
         image: "images/nba-set.jpeg" 
     },
-    { 
+     { 
         id: 8, 
+        name: "Factory NBA Set", 
+        description: "NBA Hoodie - size Large (Sold Separate)",
+        source: "Found on Cotton On",
+        link: "https://cottonon.com/ZA/nba-hoodie/5299061-15.html?dwvar_5299061-15_color=5299061-15&cgid=&originalPid=5299061-15", 
+        image: "images/nba-hoodie.jpeg" 
+    },
+    { 
+        id: 9, 
         name: "Adidas Samba OG", 
-        description: "adidas Originals Men's Samba OG Sneaker - size 6 (FOUND ON BASH)", 
+        description: "adidas Originals Men's Samba OG Sneaker - size 6",
+        source: "Found on Bash",
         link: "https://bash.com/adidas-originals-men-s-samba-og-sneaker-061017aajg4/p", 
         image: "images/samba-shoes.jpeg" 
     },
     { 
-        id: 9, 
+        id: 10, 
         name: "Airforce 1 White", 
-        description: "White Airforce 1 - size 6 (FOUND ON BASH)", 
+        description: "White Airforce 1 - size 6 (FOUND ON BASH)",
+        source: "Found on Bash",
         link: "https://bash.com/nike-men-s-air-force-1-07-white-sneaker-060601abug4/p?idsku=971910&bash_campaign=20746270549&gad_source=1&gclid=CjwKCAjw47i_BhBTEiwAaJfPpgUstO11TpPxCKLPfoCZRB-Nn1H16TRrfOhCxB4NTKi_eGsoXWJfkRoCs1MQAvD_BwE", 
         image: "images/airforce.jpeg" 
     },
     { 
-        id: 10, 
+        id: 11, 
         name: "Steve Madden Leon Cognac Brown", 
-        description: "LEON COGNAC LEATHER BROWN - size 8 (currently on sale online)", 
+        description: "LEON COGNAC LEATHER BROWN - size 8 (currently on sale online)",
+        source: "Found on Steven Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-shoes-sandals/products/leon-black-leather", 
         image: "images/steve-madden.jpeg" 
     },
     { 
-        id: 11, 
+        id: 12, 
         name: "Steve Madden Leon Cognac Black", 
         description: "LEON COGNAC LEATHER BLACK - size 8 (currently on sale online)", 
+        source: "Found on Steven Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-shoes-sandals/products/leon-black-leather", 
         image: "images/steve-madden-black.jpeg" 
     },
     { 
-        id: 12, 
+        id: 13, 
         name: "Steve Madden Denim Set", 
-        description: "BLAKE MID BLUE PRINTED DENIM SHIRT - Large & ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)", 
+        description: "BLAKE MID BLUE PRINTED DENIM SHIRT - Large & ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)",
+        source: "Found on Steven Madden",
         link: "https://stevemadden.co.za/collections/sm-mens-clothing/products/blake-mid-blue-printed-denim-shirt", 
         image: "images/denim-set.jpeg" 
     },
+     { 
+        id: 14, 
+        name: "Steve Madden Denim Set", 
+        description: "BLAKE MID BLUE PRINTED DENIM SHIRT - Large & ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)",
+        source: "Found on Steven Madden",
+        link: "https://stevemadden.co.za/products/alex-mid-blue-printed-denim-shorts", 
+        image: "images/denim-pant.jpeg" 
+    },
     { 
-        id: 13, 
+        id: 15, 
         name: "Crocs Echo Black", 
-        description: "Crocs Men's Echo Black Clog - size 6.5 (FOUND ON BASH)", 
+        description: "Crocs Men's Echo Black Clog - size 6.5 (FOUND ON BASH)",
+        source: "Found on Bash",
         link: "https://bash.com/crocs-men-s-echo-black-clog-060601agml0/p", 
         image: "images/crocs.jpeg" 
     },
     { 
-        id: 14, 
+        id: 16, 
         name: "Kapten & Son Lund Pro All Black", 
-        description: "LUND PRO ALL BLACK (50% discount available)", 
+        description: "LUND PRO ALL BLACK (50% discount available)",
+        source: "Found on Kapten & Son",
         link: "https://kapten-son.co.za/products/lund-pro-all-black", 
         image: "images/kapten-son.jpeg" 
+    },
+      { 
+        id: 17, 
+        name: "Straight Leg Jeans", 
+        description: "Men's Dark Wash Turn Up Straight Leg Jeans", 
+        source: "Found on Bash",
+        link: "https://bash.com/men-s-dark-wash-turn-up-straight-leg-jeans-170900aanh3/p", 
+        image: "images/denim-jean.jpeg" 
+    },
+    { 
+        id: 18, 
+        name: "Denim Waistcoast", 
+        description: "Men's Raw Wash Boxy Denim Waistcoat", 
+        source: "Found on BASH",
+        link: "https://bash.com/men-s-raw-wash-boxy-denim-waistcoat-170900aang6/p", 
+        image: "images/denim-waist.jpeg" 
     }
 ];
 
