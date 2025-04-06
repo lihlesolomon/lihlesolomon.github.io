@@ -150,10 +150,47 @@ const gifts = [
         image: "images/denim-waist.jpeg" 
     }
 ];
-// Initialize Firebase
-const database = firebase.database();
 
-// Load gifts function
+// Initialize the app
+document.addEventListener('DOMContentLoaded', function() {
+    if (!database) {
+        showSyncStatus('Error connecting to database', 'error');
+        return;
+    }
+
+    initSlideshow();
+    loadGifts();
+    setupRSVP();
+    setupImageZoom();
+    showSyncStatus('Loading registry...');
+});
+
+// Slideshow functionality
+function initSlideshow() {
+    const slides = document.querySelectorAll('.slideshow img');
+    if (slides.length === 0) return;
+
+    let currentSlide = 0;
+
+    function showSlide(n) {
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('active', index === n);
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    showSlide(0);
+    setInterval(nextSlide, 5000);
+}
+
+// Load gifts into the page
+// (Keep all your gift data exactly as is)
+
+
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
     if (!giftGrid) {
@@ -161,38 +198,42 @@ function loadGifts() {
         return;
     }
 
-    giftGrid.innerHTML = '<div class="loading">Loading gifts...</div>';
+    giftGrid.innerHTML = '<div class="loading-gifts">Loading gifts...</div>';
 
     database.ref('selections').on('value', (snapshot) => {
         const selections = snapshot.val() || {};
         giftGrid.innerHTML = '';
 
         if (!gifts || gifts.length === 0) {
-            giftGrid.innerHTML = '<div class="no-gifts">No gifts found</div>';
+            giftGrid.innerHTML = '<div class="no-gifts">No gifts found in the registry</div>';
             return;
         }
 
         gifts.forEach(gift => {
             const isSelected = selections[gift.id];
-            
+            const selectedBy = isSelected ? selections[gift.id].selectedBy : '';
+
             const giftCard = document.createElement('div');
             giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
             giftCard.dataset.id = gift.id;
 
             giftCard.innerHTML = `
-                <div class="gift-image">
-                    <img src="${gift.image}" alt="${gift.name}" loading="lazy">
+                <div class="gift-image-container">
+                    <img src="${gift.image}" alt="${gift.name}" 
+                         onerror="this.src='images/default-gift.jpg'"
+                         loading="lazy">
                 </div>
-                <div class="gift-details">
+                <div class="gift-content">
                     <h3>${gift.name}</h3>
                     <p>${gift.description}</p>
                     ${gift.source ? `<p class="source">${gift.source}</p>` : ''}
-                    ${gift.link !== '#' ? `<a href="${gift.link}" target="_blank">View Item</a>` : ''}
-                    <div class="selection-area">
-                        ${isSelected ? 
-                            '<div class="selected-msg">✔️ Selected</div>' : 
-                            `<button class="select-btn" data-id="${gift.id}">Select Gift</button>`
-                        }
+                    ${gift.link && gift.link !== '#' 
+                        ? `<a href="${gift.link}" class="view-details" target="_blank">View details →</a>` 
+                        : ''}
+                    <div class="gift-options">
+                        <button class="select-button" data-id="${gift.id}" ${isSelected ? 'disabled' : ''}>
+                            ${isSelected ? `<i class="fas fa-check"></i> Selected` : '<i class="far fa-heart"></i> Select This Gift'}
+                        </button>
                     </div>
                 </div>
             `;
@@ -200,52 +241,84 @@ function loadGifts() {
             giftGrid.appendChild(giftCard);
         });
 
-        // Add click handlers
-        document.querySelectorAll('.select-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const giftId = this.dataset.id;
-                const gift = gifts.find(g => g.id == giftId);
-                
-                if (confirm(`Select ${gift.name}?`)) {
-                    database.ref(`selections/${giftId}`).set({
-                        giftName: gift.name,
-                        selectedAt: new Date().toISOString()
-                    });
+        document.querySelectorAll('.select-button:not(:disabled)').forEach(button => {
+            button.addEventListener('click', async function() {
+                const giftId = parseInt(this.getAttribute('data-id'));
+                const gift = gifts.find(g => g.id === giftId);
+
+                const selectedBy = prompt('Please enter your name to select this gift:');
+                if (!selectedBy?.trim()) {
+                    showSyncStatus('Selection cancelled', 'error');
+                    return;
+                }
+
+                const selectionData = {
+                    giftName: gift.name,  // Store the gift name
+                    selectedBy: selectedBy.trim(),
+                    date: new Date().toISOString()
+                };
+
+                try {
+                    await database.ref(`selections/${giftId}`).set(selectionData);
+                    showSyncStatus(`${gift.name} selected successfully!`);
+                } catch (error) {
+                    console.error('Error selecting gift:', error);
+                    showSyncStatus('Failed to select gift. Please try again.', 'error');
                 }
             });
         });
+    }, (error) => {
+        console.error('Firebase error:', error);
+        showSyncStatus('Error loading gifts', 'error');
+        giftGrid.innerHTML = '<div class="error">Error loading gifts. Please try again later.</div>';
     });
 }
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    if (!database) {
-        showSyncStatus('Database error', 'error');
-        return;
-    }
-    loadGifts();
-    initSlideshow();
-    setupRSVP();
-    setupImageZoom();
-});
-
-// Slideshow function
-function initSlideshow() {
-    const slides = document.querySelectorAll('.slideshow img');
-    let currentSlide = 0;
-    
-    function showSlide(n) {
-        slides.forEach((slide, i) => slide.classList.toggle('active', i === n));
-    }
-    
-    showSlide(0);
-    setInterval(() => {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }, 5000);
+// Preload image
+function preloadImage(src, giftCard) {
+    const img = new Image();
+    img.src = src;
+    img.onload = function() {
+        const cardImg = giftCard.querySelector('img');
+        if (cardImg) {
+            cardImg.classList.remove('loading');
+            const loadingText = giftCard.querySelector('.loading-text');
+            if (loadingText) loadingText.remove();
+        }
+    };
+    img.onerror = function() {
+        const cardImg = giftCard.querySelector('img');
+        if (cardImg) {
+            cardImg.src = 'images/default-gift.jpg';
+            cardImg.classList.remove('loading');
+            const loadingText = giftCard.querySelector('.loading-text');
+            if (loadingText) loadingText.remove();
+        }
+    };
 }
 
-// RSVP function
+// Show sync status
+function showSyncStatus(message, type = '') {
+    const existingStatus = document.querySelector('.sync-status');
+    if (existingStatus) existingStatus.remove();
+
+    const status = document.createElement('div');
+    status.className = `sync-status ${type}`;
+    status.innerHTML = `
+        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+        ${message}
+    `;
+    document.body.appendChild(status);
+
+    if (type !== 'error') {
+        setTimeout(() => {
+            status.style.opacity = '0';
+            setTimeout(() => status.remove(), 300);
+        }, 3000);
+    }
+}
+
+// RSVP functionality
 function setupRSVP() {
     const rsvpModal = document.getElementById('rsvpModal');
     const closeModal = document.getElementById('closeModal');
@@ -256,21 +329,25 @@ function setupRSVP() {
         return;
     }
     
+    // Open modal
     document.getElementById('rsvpButton').addEventListener('click', function(e) {
         e.preventDefault();
         rsvpModal.style.display = 'block';
     });
     
+    // Close modal
     closeModal.addEventListener('click', function() {
         rsvpModal.style.display = 'none';
     });
     
+    // Close when clicking outside
     window.addEventListener('click', function(e) {
         if (e.target === rsvpModal) {
             rsvpModal.style.display = 'none';
         }
     });
     
+    // Form submission
     rsvpForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -282,6 +359,7 @@ function setupRSVP() {
         const email = emailInput.value.trim();
         const attendance = attendanceSelect.value;
         
+        // Validate inputs
         if (!name) {
             alert('Please enter your name');
             nameInput.focus();
@@ -307,6 +385,7 @@ function setupRSVP() {
             date: new Date().toISOString()
         };
         
+        // Save to Firebase
         database.ref('rsvps').push(rsvpData)
             .then(() => {
                 showSyncStatus('RSVP submitted successfully!');
@@ -320,7 +399,7 @@ function setupRSVP() {
     });
 }
 
-// Image zoom function
+// Image Zoom Functionality
 function setupImageZoom() {
     const zoomModal = document.getElementById('imageZoomModal');
     const zoomedImg = document.getElementById('zoomedImage');
@@ -328,47 +407,86 @@ function setupImageZoom() {
     
     if (!zoomModal || !zoomedImg || !closeZoom) return;
 
+    // Click on gift images to zoom
     document.addEventListener('click', function(e) {
         if (e.target.tagName === 'IMG' && e.target.closest('.gift-card')) {
-            zoomedImg.src = e.target.src;
-            zoomModal.style.display = 'flex';
+            const img = e.target;
+            if (img.src) {
+                zoomedImg.src = img.src;
+                zoomModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
         }
     });
 
+    // Close zoom modal
     closeZoom.addEventListener('click', function() {
         zoomModal.style.display = 'none';
+        document.body.style.overflow = ''; // Re-enable scrolling
     });
 
+    // Close when clicking outside image
     zoomModal.addEventListener('click', function(e) {
         if (e.target === zoomModal) {
             zoomModal.style.display = 'none';
+            document.body.style.overflow = ''; // Re-enable scrolling
         }
     });
 
+    // Close with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && zoomModal.style.display === 'flex') {
             zoomModal.style.display = 'none';
+            document.body.style.overflow = ''; // Re-enable scrolling
         }
     });
 }
 
-// Helper function
-function showSyncStatus(message, type = '') {
-    const existingStatus = document.querySelector('.sync-status');
-    if (existingStatus) existingStatus.remove();
+document.addEventListener('DOMContentLoaded', function () {
+    const slides = document.querySelectorAll('.slideshow img');
+    let currentSlide = 0;
 
-    const status = document.createElement('div');
-    status.className = `sync-status ${type}`;
-    status.innerHTML = `
-        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
-        ${message}
-    `;
-    document.body.appendChild(status);
-
-    if (type !== 'error') {
-        setTimeout(() => {
-            status.style.opacity = '0';
-            setTimeout(() => status.remove(), 300);
-        }, 3000);
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
     }
-}
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Show the first slide initially
+    showSlide(currentSlide);
+
+    // Automatically transition slides every 5 seconds
+    setInterval(nextSlide, 5000);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const rsvpButton = document.getElementById('rsvpButton');
+    const rsvpModal = document.getElementById('rsvpModal');
+    const closeModal = document.getElementById('closeModal');
+
+    if (rsvpButton && rsvpModal) {
+        rsvpButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            rsvpModal.style.display = 'flex';
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', function () {
+            rsvpModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function (e) {
+        if (e.target === rsvpModal) {
+            rsvpModal.style.display = 'none';
+        }
+    });
+});
+
