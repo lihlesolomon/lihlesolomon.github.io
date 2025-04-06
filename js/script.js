@@ -1,4 +1,4 @@
- // Gift Data (unchanged from your original)
+// Gift Data
 const gifts = [
     { 
         id: 1, 
@@ -150,37 +150,48 @@ const gifts = [
         image: "images/denim-waist.jpeg" 
     }
 ];
+
 // Initialize Firebase
 const database = firebase.database();
 
-// Load gifts without showing who selected them
+// Load gifts function
 function loadGifts() {
     const giftGrid = document.getElementById('giftGrid');
+    if (!giftGrid) {
+        showSyncStatus('Error loading gifts', 'error');
+        return;
+    }
+
     giftGrid.innerHTML = '<div class="loading">Loading gifts...</div>';
 
     database.ref('selections').on('value', (snapshot) => {
         const selections = snapshot.val() || {};
         giftGrid.innerHTML = '';
 
-        gifts.forEach(gift => {
-            const isSelected = !!selections[gift.id]; // Just check if selected, don't use name
+        if (!gifts || gifts.length === 0) {
+            giftGrid.innerHTML = '<div class="no-gifts">No gifts found</div>';
+            return;
+        }
 
+        gifts.forEach(gift => {
+            const isSelected = selections[gift.id];
+            
             const giftCard = document.createElement('div');
             giftCard.className = `gift-card ${isSelected ? 'selected' : ''}`;
             giftCard.dataset.id = gift.id;
 
             giftCard.innerHTML = `
                 <div class="gift-image">
-                    <img src="${gift.image}" alt="${gift.name}"> loading="lazy">
+                    <img src="${gift.image}" alt="${gift.name}" loading="lazy">
                 </div>
                 <div class="gift-details">
                     <h3>${gift.name}</h3>
                     <p>${gift.description}</p>
-                    ${gift.source ? `<p class="source">Source: ${gift.source}</p>` : ''}
+                    ${gift.source ? `<p class="source">${gift.source}</p>` : ''}
                     ${gift.link !== '#' ? `<a href="${gift.link}" target="_blank">View Item</a>` : ''}
                     <div class="selection-area">
                         ${isSelected ? 
-                            `<div class="selected-msg">✔️ Selected</div>` : // Removed name display
+                            '<div class="selected-msg">✔️ Selected</div>' : 
                             `<button class="select-btn" data-id="${gift.id}">Select Gift</button>`
                         }
                     </div>
@@ -190,17 +201,15 @@ function loadGifts() {
             giftGrid.appendChild(giftCard);
         });
 
-        // Selection handler (still stores name in Firebase but doesn't display it)
+        // Add click handlers
         document.querySelectorAll('.select-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const giftId = this.dataset.id;
                 const gift = gifts.find(g => g.id == giftId);
-                const userName = prompt(`Select ${gift.name} (your name will be recorded but not displayed):`);
                 
-                if (userName && userName.trim()) {
+                if (confirm(`Select ${gift.name}?`)) {
                     database.ref(`selections/${giftId}`).set({
                         giftName: gift.name,
-                        selectedBy: userName.trim(), // Still stored but not shown
                         selectedAt: new Date().toISOString()
                     });
                 }
@@ -209,92 +218,55 @@ function loadGifts() {
     });
 }
 
-// Initialize
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-      if (!database) {
-        showSyncStatus('Error connecting to database', 'error');
+    if (!database) {
+        showSyncStatus('Database error', 'error');
         return;
     }
-
-    initSlideshow();
     loadGifts();
+    initSlideshow();
     setupRSVP();
     setupImageZoom();
-    showSyncStatus('Loading registry...');
 });
 
-// Slideshow functionality
+// Slideshow function
 function initSlideshow() {
     const slides = document.querySelectorAll('.slideshow img');
-    if (slides.length === 0) return;
-
     let currentSlide = 0;
-
+    
     function showSlide(n) {
-        slides.forEach((slide, index) => {
-            slide.classList.toggle('active', index === n);
-        });
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === n));
     }
-
-    function nextSlide() {
+    
+    showSlide(0);
+    setInterval(() => {
         currentSlide = (currentSlide + 1) % slides.length;
         showSlide(currentSlide);
-    }
-
-    showSlide(0);
-    setInterval(nextSlide, 5000);
-}
-// Preload image
-function preloadImage(src, giftCard) {
-    const img = new Image();
-    img.src = src;
-    img.onload = function() {
-        const cardImg = giftCard.querySelector('img');
-        if (cardImg) {
-            cardImg.classList.remove('loading');
-            const loadingText = giftCard.querySelector('.loading-text');
-            if (loadingText) loadingText.remove();
-        }
-    };
-    img.onerror = function() {
-        const cardImg = giftCard.querySelector('img');
-        if (cardImg) {
-            cardImg.src = 'images/default-gift.jpg';
-            cardImg.classList.remove('loading');
-            const loadingText = giftCard.querySelector('.loading-text');
-            if (loadingText) loadingText.remove();
-        }
-    };
+    }, 5000);
 }
 
-// Show sync status
-function showSyncStatus(message, type = '') {
-    const existingStatus = document.querySelector('.sync-status');
-    if (existingStatus) existingStatus.remove();
-
-    const status = document.createElement('div');
-    status.className = `sync-status ${type}`;
-    status.innerHTML = `
-        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
-        ${message}
-    `;
-    document.body.appendChild(status);
-
-    if (type !== 'error') {
-        setTimeout(() => {
-            status.style.opacity = '0';
-            setTimeout(() => status.remove(), 300);
-        }, 3000);
-    }
-}
-
-// RSVP functionality
+// RSVP function
 function setupRSVP() {
-    const rsvpModal = document.getElementById('rsvpModal');
-    const closeModal = document.getElementById('closeModal');
-    const rsvpForm = document.getElementById('rsvpForm');
+    const modal = document.getElementById('rsvpModal');
+    if (!modal) return;
     
-    if (!rsvpModal || !closeModal || !rsvpForm) {
+    document.getElementById('rsvpButton').addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'block';
+    });
+    
+    document.getElementById('closeModal').addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+    
+    document.getElementById('rsvpForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!rsvpModal || !closeModal || !rsvpForm) {
         console.error('RSVP elements not found');
         return;
     }
@@ -369,95 +341,28 @@ function setupRSVP() {
     });
 }
 
-// Image Zoom Functionality
+// Image zoom function
 function setupImageZoom() {
-    const zoomModal = document.getElementById('imageZoomModal');
-    const zoomedImg = document.getElementById('zoomedImage');
-    const closeZoom = document.querySelector('.close-zoom');
+    const modal = document.getElementById('imageZoomModal');
+    if (!modal) return;
     
-    if (!zoomModal || !zoomedImg || !closeZoom) return;
-
-    // Click on gift images to zoom
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', (e) => {
         if (e.target.tagName === 'IMG' && e.target.closest('.gift-card')) {
-            const img = e.target;
-            if (img.src) {
-                zoomedImg.src = img.src;
-                zoomModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden'; // Prevent scrolling
-            }
+            document.getElementById('zoomedImage').src = e.target.src;
+            modal.style.display = 'flex';
         }
     });
-
-    // Close zoom modal
-    closeZoom.addEventListener('click', function() {
-        zoomModal.style.display = 'none';
-        document.body.style.overflow = ''; // Re-enable scrolling
-    });
-
-    // Close when clicking outside image
-    zoomModal.addEventListener('click', function(e) {
-        if (e.target === zoomModal) {
-            zoomModal.style.display = 'none';
-            document.body.style.overflow = ''; // Re-enable scrolling
-        }
-    });
-
-    // Close with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && zoomModal.style.display === 'flex') {
-            zoomModal.style.display = 'none';
-            document.body.style.overflow = ''; // Re-enable scrolling
-        }
+    
+    document.querySelector('.close-zoom').addEventListener('click', () => {
+        modal.style.display = 'none';
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const slides = document.querySelectorAll('.slideshow img');
-    let currentSlide = 0;
-
-    function showSlide(index) {
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === index);
-        });
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }
-
-    // Show the first slide initially
-    showSlide(currentSlide);
-
-    // Automatically transition slides every 5 seconds
-    setInterval(nextSlide, 5000);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const rsvpButton = document.getElementById('rsvpButton');
-    const rsvpModal = document.getElementById('rsvpModal');
-    const closeModal = document.getElementById('closeModal');
-
-    if (rsvpButton && rsvpModal) {
-        rsvpButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            rsvpModal.style.display = 'flex';
-        });
-    }
-
-    if (closeModal) {
-        closeModal.addEventListener('click', function () {
-            rsvpModal.style.display = 'none';
-        });
-    }
-
-    // Close modal when clicking outside of it
-    window.addEventListener('click', function (e) {
-        if (e.target === rsvpModal) {
-            rsvpModal.style.display = 'none';
-        }
-    });
-});
-    // ... (keep your existing slideshow/RSVP initialization code)
-});
+// Helper functions
+function showSyncStatus(message, type = '') {
+    const status = document.createElement('div');
+    status.className = `sync-status ${type}`;
+    status.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+    document.body.appendChild(status);
+    if (type !== 'error') setTimeout(() => status.remove(), 3000);
+}
