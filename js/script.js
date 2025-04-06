@@ -150,7 +150,6 @@ const gifts = [
         image: "images/denim-waist.jpeg" 
     }
 ];
-
 // Initialize Firebase
 const database = firebase.database();
 
@@ -248,48 +247,30 @@ function initSlideshow() {
 
 // RSVP function
 function setupRSVP() {
-    const modal = document.getElementById('rsvpModal');
-    if (!modal) return;
+    const rsvpModal = document.getElementById('rsvpModal');
+    const closeModal = document.getElementById('closeModal');
+    const rsvpForm = document.getElementById('rsvpForm');
     
-    document.getElementById('rsvpButton').addEventListener('click', (e) => {
-        e.preventDefault();
-        modal.style.display = 'block';
-    });
-    
-    document.getElementById('closeModal').addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-    
-    document.getElementById('rsvpForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!rsvpModal || !closeModal || !rsvpForm) {
+    if (!rsvpModal || !closeModal || !rsvpForm) {
         console.error('RSVP elements not found');
         return;
     }
     
-    // Open modal
     document.getElementById('rsvpButton').addEventListener('click', function(e) {
         e.preventDefault();
         rsvpModal.style.display = 'block';
     });
     
-    // Close modal
     closeModal.addEventListener('click', function() {
         rsvpModal.style.display = 'none';
     });
     
-    // Close when clicking outside
     window.addEventListener('click', function(e) {
         if (e.target === rsvpModal) {
             rsvpModal.style.display = 'none';
         }
     });
     
-    // Form submission
     rsvpForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -301,7 +282,6 @@ function setupRSVP() {
         const email = emailInput.value.trim();
         const attendance = attendanceSelect.value;
         
-        // Validate inputs
         if (!name) {
             alert('Please enter your name');
             nameInput.focus();
@@ -327,7 +307,6 @@ function setupRSVP() {
             date: new Date().toISOString()
         };
         
-        // Save to Firebase
         database.ref('rsvps').push(rsvpData)
             .then(() => {
                 showSyncStatus('RSVP submitted successfully!');
@@ -343,26 +322,53 @@ function setupRSVP() {
 
 // Image zoom function
 function setupImageZoom() {
-    const modal = document.getElementById('imageZoomModal');
-    if (!modal) return;
+    const zoomModal = document.getElementById('imageZoomModal');
+    const zoomedImg = document.getElementById('zoomedImage');
+    const closeZoom = document.querySelector('.close-zoom');
     
-    document.addEventListener('click', (e) => {
+    if (!zoomModal || !zoomedImg || !closeZoom) return;
+
+    document.addEventListener('click', function(e) {
         if (e.target.tagName === 'IMG' && e.target.closest('.gift-card')) {
-            document.getElementById('zoomedImage').src = e.target.src;
-            modal.style.display = 'flex';
+            zoomedImg.src = e.target.src;
+            zoomModal.style.display = 'flex';
         }
     });
-    
-    document.querySelector('.close-zoom').addEventListener('click', () => {
-        modal.style.display = 'none';
+
+    closeZoom.addEventListener('click', function() {
+        zoomModal.style.display = 'none';
+    });
+
+    zoomModal.addEventListener('click', function(e) {
+        if (e.target === zoomModal) {
+            zoomModal.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && zoomModal.style.display === 'flex') {
+            zoomModal.style.display = 'none';
+        }
     });
 }
 
-// Helper functions
+// Helper function
 function showSyncStatus(message, type = '') {
+    const existingStatus = document.querySelector('.sync-status');
+    if (existingStatus) existingStatus.remove();
+
     const status = document.createElement('div');
     status.className = `sync-status ${type}`;
-    status.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+    status.innerHTML = `
+        <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>
+        ${message}
+    `;
     document.body.appendChild(status);
-    if (type !== 'error') setTimeout(() => status.remove(), 3000);
+
+    if (type !== 'error') {
+        setTimeout(() => {
+            status.style.opacity = '0';
+            setTimeout(() => status.remove(), 300);
+        }, 3000);
+    }
 }
