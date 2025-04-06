@@ -112,10 +112,10 @@ const gifts = [
      { 
         id: 14, 
         name: "Steve Madden Denim Set", 
-        description: "BLAKE MID BLUE PRINTED DENIM SHIRT - Large & ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)",
+        description: "ALEX MID BLUE PRINTED DENIM SHORTS - size 34 (currently on sale online)",
         source: "Found on Steven Madden",
         link: "https://stevemadden.co.za/products/alex-mid-blue-printed-denim-shorts", 
-        image: "images/denim-pant.jpeg" 
+        image: "images/denim-pants.jpeg" 
     },
     { 
         id: 15, 
